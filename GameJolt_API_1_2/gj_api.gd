@@ -19,63 +19,43 @@ export(bool) var debug = false
 export(bool) var use_SSL = true
 const API_URL = 'api.gamejolt.com/api/game/v1_2/'
 
-const PARAMETERS = {
-	user_auth         = ['&user_token=', '&username='],
-	user_fetch        = ['&username=', '&user_id='],
-	friends_fetch     = ['&username=', '&user_token='],
-	sessions          = ['&username=', '&user_token='],
-	trophy_fetch      = ['&username=', '&user_token=', '&achieved=', '&trophy_id='],
-	trophy_add_remove = ['&username=', '&user_token=', '&trophy_id='],
-	scores_fetch      = ['&username=', '&user_token=', '&limit=', '&table_id=', '&better_than=', '&worse_than='],
-	scores_add        = ['&score=', '&sort=', '&username=', '&user_token=', '&guest=', '&table_id='],
-	scores_fetch_rank = ['&sort=', '&table_id='],
-	tables_fetch      = [],
-	data_fetch        = ['&key=', '&username=', '&user_token='],
-	data_set          = ['&key=', '&data=', '&username=', '&user_token='],
-	data_update       = ['&key=', '&operation=', '&value=', '&username=', '&user_token='],
-	data_remove       = ['&key='],
-	data_keys_get     = ['&username=', '&user_token=', '&pattern='],
-	time_fetch        = []
-}
-
 # https://gamejolt.com/game-api/doc
+# All of this is sorted after the official documentation (Dec. 2018)
 const API_COMMAND = {
 
 #	Data-store          Manipulate items in a cloud-based data storage.
-	data_fetch        = ['data-store/',               PARAMETERS.data_fetch]
-	data_keys_get     = ['data-store/get-keys/',      PARAMETERS.data_keys_get]
-	data_remove       = ['data-store/remove/',        PARAMETERS.data_remove]
-	data_set          = ['data-store/set/',           PARAMETERS.data_set]
-	data_update       = ['data-store/update/',        PARAMETERS.data_update]
+	data_fetch        = ['data-store/',               ['key', 'username', 'user_token']]
+	data_keys_get     = ['data-store/get-keys/',      ['pattern', 'username', 'user_token']]
+	data_remove       = ['data-store/remove/',        ['key', 'username', 'user_token']]
+	data_set          = ['data-store/set/',           ['key', 'data', 'username', 'user_token']]
+	data_update       = ['data-store/update/',        ['key', 'username', 'user_token', 'operation', 'value']]
 
 #	Time	            Get the server's time.
-	time_fetch        = ['time/',                     PARAMETERS.time_fetch]
+	time_fetch        = ['time/',                     []]
 
 #	Scores	            Manipulate scores on score tables.
-	scores_add        = ['scores/add/',               PARAMETERS.scores_add]
-	scores_fetch_rank = ['scores/get_rank/',          PARAMETERS.scores_fetch_rank]
-	scores_fetch      = ['scores/',                   PARAMETERS.scores_fetch]
-	tables_fetch      = ['scores/tables/',            PARAMETERS.tables_fetch]
+	scores_add        = ['scores/add/',               ['username', 'user_token', 'guest', 'score', 'sort', 'extra_data', 'table_id']]
+	scores_fetch_rank = ['scores/get_rank/',          ['sort', 'table_id']]
+	scores_fetch      = ['scores/',                   ['limit', 'table_id', 'username', 'user_token', 'guest', 'better_than', 'worse_than']]
+	tables_fetch      = ['scores/tables/',            []]
 
 #	Sessions	        Set up sessions for your game.
-	session_open      = ['sessions/open/',            PARAMETERS.sessions]
-	session_ping      = ['sessions/ping/',            PARAMETERS.sessions]
-	session_check     = ['sessions/check/',           PARAMETERS.sessions]
-	session_close     = ['sessions/close/',           PARAMETERS.sessions]
+	session_open      = ['sessions/open/',            ['username', 'user_token']]
+	session_ping      = ['sessions/ping/',            ['username', 'user_token', 'status']]
+	session_check     = ['sessions/check/',           ['username', 'user_token']]
+	session_close     = ['sessions/close/',           ['username', 'user_token']]
 
 #	Trophies	        Manage trophies for your game.
-	trophy_fetch      = ['trophies/',                 PARAMETERS.trophy_fetch]
-	trophy_add        = ['trophies/add-achieved/',    PARAMETERS.trophy_add_remove]
-	trophy_remove     = ['trophies/remove-achieved/', PARAMETERS.trophy_add_remove]
+	trophy_fetch      = ['trophies/',                 ['username', 'user_token', 'achieved', 'trophy_id']]
+	trophy_add        = ['trophies/add-achieved/',    ['username', 'user_token', 'trophy_id']]
+	trophy_remove     = ['trophies/remove-achieved/', ['username', 'user_token', 'trophy_id']]
 
 #	Users	            Access user-based features.
-	user_auth         = ['users/auth/',               PARAMETERS.user_auth]
-	user_fetch        = ['users/',                    PARAMETERS.user_fetch]
+	user_auth         = ['users/auth/',               ['username', 'user_token']]
+	user_fetch        = ['users/',                    ['username', 'user_id']]
 
 #	Friends	            List a user's friends.
-	friends           = ['friends/',                  PARAMETERS.friends_fetch]
-
-#	Batch	            Merge multiple API calls into one request.
+	friends           = ['friends/',                  ['username', 'user_token']]
 }
 
 signal error(error)
@@ -94,25 +74,25 @@ func get_user_token():
 	return token_cache
 
 	
-func fetch_data(key, username=null, token=null):
+func fetch_data(key, username=null, user_token=null):
 	# returns data stored for this game (and user if set)
-	gj_api(API_COMMAND.data_fetch, [key, username, token])
+	gj_api(API_COMMAND.data_fetch, [key, username, user_token])
 
-func get_data_keys(username=null, token=null, pattern=null):
+func get_data_keys(pattern=null, username=null, user_token=null):
 	# returns all keys or limited to a given user or by a pattern
-	gj_api(API_COMMAND.data_keys_get, [username, token, pattern])
+	gj_api(API_COMMAND.data_keys_get, [pattern, username, user_token])
 
-func remove_data(key, username=null, token=null):
+func remove_data(key, username=null, user_token=null):
 	# removes data for this game (and user if set)
-	gj_api(API_COMMAND.data_remove, [key, username, token])	
+	gj_api(API_COMMAND.data_remove, [key, username, user_token])	
 	
-func set_data(key, data, username=null, token=null):
+func set_data(key, data, username=null, user_token=null):
 	# stores data for this game (and user if set)
-	gj_api(API_COMMAND.data_set, [key, data, username, token])
+	gj_api(API_COMMAND.data_set, [key, data, username, user_token])
 	
-func update_data(key, operation, value, username=null, token=null):
+func update_data(key, username=null, user_token=null, operation, value):
 	# operates on already set data: add / subtract / multiply / divide / append / prepend
-	gj_api(API_COMMAND.data_update, [key, operation, value, username, token])
+	gj_api(API_COMMAND.data_update, [key, username, user_token, operation, value])
 
 	
 func fetch_time():
@@ -120,17 +100,17 @@ func fetch_time():
 	gj_api(API_COMMAND.time_fetch, [])
 
 	
-func add_score(score, sort, username=null, token=null, guest=null, table_id=null):
+func add_score(username=null, user_token=null, guest=null, score, sort, extra_data=null, table_id=null):
 	# adds a score, pass either username/token or guest. uses the main table if no id provided
-	gj_api(API_COMMAND.scores_add, [score, sort, username, token, guest, table_id])
+	gj_api(API_COMMAND.scores_add, [username, user_token, guest, score, sort, extra_data, table_id])
 	
 func fetch_score_rank(sort, table_id=null):
 	# retrieves the rank of the nearest score
 	gj_api(API_COMMAND.scores_fetch_rank, [sort, table_id])
 
-func fetch_scores(username=null, token=null, limit=null, table_id=null, better_than=null, worse_than=null):
+func fetch_scores(limit=null, table_id=null, username=null, user_token=null, guest=null, better_than=null, worse_than=null):
 	# returns scores, all arguments are optional, but pass either username/token or guest; better_than or worse_than
-	gj_api(API_COMMAND.scores_fetch, [username, token, limit, table_id, better_than, worse_than])
+	gj_api(API_COMMAND.scores_fetch, [username, user_token, limit, table_id, better_than, worse_than])
 	
 func fetch_tables():
 	# fetches the ids of all tables for this game
@@ -141,9 +121,9 @@ func open_session():
 	# opens a game session for the cached user
 	gj_api(API_COMMAND.session_open, [username_cache, token_cache])
 	
-func ping_session():
+func ping_session(status=null):
 	# call at least every 120s to keep session opened
-	gj_api(API_COMMAND.session_ping, [username_cache, token_cache])
+	gj_api(API_COMMAND.session_ping, [username_cache, token_cache, status])
 	
 func check_session():
 	# checks if there is an open session in this game for the cached user
@@ -154,9 +134,9 @@ func close_session():
 	gj_api(API_COMMAND.session_close, [username_cache, token_cache])
 
 	
-func fetch_trophy(achieved=null, trophy_ids=null):
+func fetch_trophy(achieved=null, trophy_id=null):
 	# returns (only achieved) trophies (with given id / ids) for the cached user
-	gj_api(API_COMMAND.trophy, [username_cache, token_cache, achieved, trophy_ids])
+	gj_api(API_COMMAND.trophy, [username_cache, token_cache, achieved, trophy_id])
 	
 func set_trophy_achieved(trophy_id):
 	# gives the cached user the specified trophy
@@ -167,15 +147,15 @@ func remove_trophy_achieved(trophy_id):
 	gj_api(API_COMMAND.trophy_remove, [username_cache, token_cache, trophy_id])
 
 
-func auth_user(token, username):
+func auth_user(username, user_token):
 	# checks if the credentials are correct and chaches them
-	gj_api(API_COMMAND.user_auth, [token, username])
+	gj_api(API_COMMAND.user_auth, [username, user_token])
 	username_cache = username
 	token_cache = token
 	
-func fetch_user(username=null, id=null):
+func fetch_user(username=null, user_id=null):
 	# returns a user's data - only username or user_id is required
-	gj_api(API_COMMAND.user_fetch, [username, id])
+	gj_api(API_COMMAND.user_fetch, [username, user_id])
 
 
 func fetch_friends():
@@ -209,13 +189,13 @@ func execute_next():
 	request(url)
 	
 
-func compose_url(api_command, parameters):
+func compose_url(cmd, args):
 	var url = "https://" if use_SSL else "http://"
-	url += API_URL + command + '?game_id' + str(game_id)
+	url += API_URL + cmd[0] + '?game_id' + str(game_id)
 
-	for i in range(api_command[1].size()):
-		if parameters[i] != null:
-			url += api_command[1][i] + str(parameters[i]).percent_encode()
+	for i in range(cmd[1].size()):
+		if args[i] != null:
+			url += '&' + cmd[1][i] '=' + str(args[i]).percent_encode()
 	
 	url += '&signature=' + (url + private_key).md5_text()
 	
