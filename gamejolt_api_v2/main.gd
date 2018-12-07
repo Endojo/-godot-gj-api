@@ -74,87 +74,88 @@ func get_username():
 	
 func get_user_token():
 	return token_cache
+
 	
-# checks if the credentials are correct and chaches them
 func auth_user(token, username):
+	# checks if the credentials are correct and chaches them
 	gj_api(API_COMMAND.user_auth, [token, username])
 	username_cache = username
 	token_cache = token
 	
-# returns a user's data - only username or user_id is required
 func fetch_user(username=null, id=null):
+	# returns a user's data - only username or user_id is required
 	gj_api(API_COMMAND.user_fetch, [username, id])
 	
-# returns all friends of the cached user
 func fetch_friends():
+	# returns all friends of the cached user
 	gj_api(API_COMMAND.friends, [username_cache, token_cache])
 	
-# opens a game session for the cached user
 func open_session():
+	# opens a game session for the cached user
 	gj_api(API_COMMAND.session_open, [username_cache, token_cache])
 	
-# call at least every 120s to keep session opened
 func ping_session():
+	# call at least every 120s to keep session opened
 	gj_api(API_COMMAND.session_ping, [username_cache, token_cache])
 	
-# closes the game session for the cached user
 func close_session():
+	# closes the game session for the cached user
 	gj_api(API_COMMAND.session_close, [username_cache, token_cache])
 	
-# checks if there is an open session in this game for the cached user
 func check_session():
+	# checks if there is an open session in this game for the cached user
 	gj_api(API_COMMAND.session_check, [username_cache, token_cache])
 	
-# returns (only achieved) trophies (with given id / ids) for the cached user
 func fetch_trophy(achieved=null, trophy_ids=null):
+	# returns (only achieved) trophies (with given id / ids) for the cached user
 	gj_api(API_COMMAND.trophy, [username_cache, token_cache, achieved, trophy_ids])
 	
-# gives the cached user the specified trophy
 func set_trophy_achieved(trophy_id):
+	# gives the cached user the specified trophy
 	gj_api(API_COMMAND.trophy_add, [username_cache, token_cache, trophy_id])
 	
-# removes teh specified trophy from the cached user
 func remove_trophy_achieved(trophy_id):
+	# removes teh specified trophy from the cached user
 	gj_api(API_COMMAND.trophy_remove, [username_cache, token_cache, trophy_id])
 	
-# returns scores, all arguments are optional, but pass either username/token or guest; better_than or worse_than
 func fetch_scores(username=null, token=null, limit=null, table_id=null, better_than=null, worse_than=null):
+	# returns scores, all arguments are optional, but pass either username/token or guest; better_than or worse_than
 	gj_api(API_COMMAND.scores_fetch, [username, token, limit, table_id, better_than, worse_than])
 	
-# adds a score, pass either username/token or guest. uses the main table if no id provided
 func add_score(score, sort, username=null, token=null, guest=null, table_id=null):
+	# adds a score, pass either username/token or guest. uses the main table if no id provided
 	gj_api(API_COMMAND.scores_add, [score, sort, username, token, guest, table_id])
 	
-# retrieves the rank of the nearest score
 func fetch_score_rank(sort, table_id=null):
+	# retrieves the rank of the nearest score
 	gj_api(API_COMMAND.scores_fetch_rank, [sort, table_id])
 	
-# fetches the ids of all tables for this game
 func fetch_tables():
+	# fetches the ids of all tables for this game
 	gj_api(API_COMMAND.tables_fetch, [])
 	
-# returns data stored for this game (and user if set)
 func fetch_data(key, username=null, token=null):
+	# returns data stored for this game (and user if set)
 	gj_api(API_COMMAND.data_fetch, [key, username, token])
 	
-# stores data for this game (and user if set)
 func set_data(key, data, username=null, token=null):
+	# stores data for this game (and user if set)
 	gj_api(API_COMMAND.data_set, [key, data, username, token])
 	
-# operates on already set data: add / subtract / multiply / divide / append / prepend
 func update_data(key, operation, value, username=null, token=null):
+	# operates on already set data: add / subtract / multiply / divide / append / prepend
 	gj_api(API_COMMAND.data_update, [key, operation, value, username, token])
 	
-# removes data for this game (and user if set)
 func remove_data(key, username=null, token=null):
+	# removes data for this game (and user if set)
 	gj_api(API_COMMAND.data_remove, [key, username, token])
 	
-# returns all keys or limited to a given user or by a pattern
 func get_data_keys(username=null, token=null, pattern=null):
+	# returns all keys or limited to a given user or by a pattern
 	gj_api(API_COMMAND.data_keys_get, [username, token, pattern])
 	
-# returns the time of the GameJolt server
 func fetch_time():
+	# returns the time of the GameJolt server
 	gj_api(API_COMMAND.time_fetch, [])
 		return url
 
